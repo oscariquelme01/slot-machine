@@ -26,6 +26,8 @@
 
     <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
 
+    <link rel="preload" as="font" href="./assets/fonts/Neonderthaw-Regular.ttf" type="font/ttf">
+
     <title><%= htmlWebpackPlugin.options.gameName %></title>
     <style>
       html,
@@ -33,6 +35,11 @@
         height: 100%;
         margin: 0;
         background-color: #000000;
+      }
+
+      @font-face {
+          font-family: neon;
+          src: url('./assets/fonts/Neonderthaw-Regular.ttf')
       }
     </style>
 
@@ -48,6 +55,9 @@
     </script> -->
   </head>
   <body>
+    <!-- workaround to load font --> 
+    <div style="font-family:neon; position:absolute; left:-1000px; visibility:hidden;">.</div>
+
     <div id="phaser-game"></div>
   </body>
 </html>
