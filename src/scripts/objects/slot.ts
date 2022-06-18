@@ -10,6 +10,7 @@ export default class slot {
     scene: MainScene
     pos_slot: number
     x: number
+    tween: Phaser.Tweens.Tween
 
     // x & y will determine the starting point of the slot 
     constructor(scene: MainScene, x: number, pos_slot: number){
@@ -27,16 +28,20 @@ export default class slot {
         }
 
         this.shuffleArray(this.scene.items[this.pos_slot])
-    }
-    
-    run(){
+
         var velocity = (END_Y - INITIAL_Y) / ROUND_DURATION //px/s
         var delay = ITEM_LENGTH / velocity
 
         // Add the slot to the scene
-        this.scene.tweens.add({targets: this.scene.items[this.pos_slot], y: END_Y, Ease:'power0', duration: ROUND_DURATION, 
+        this.tween = this.scene.tweens.add({targets: this.scene.items[this.pos_slot], y: END_Y, Ease:'power0', duration: ROUND_DURATION, 
             delay: this.scene.tweens.stagger(delay, {}), repeat: NUM_ROUNDS, repeatDelay: delay, 
-            onComplete: this.show_result, onCompleteParams: [this.scene, this.pos_slot]})
+            onComplete: this.show_result, onCompleteParams: [this.scene, this.pos_slot], paused: true})
+    }
+    
+    run(){
+        if(this.scene.in_game) return
+        this.tween.resume()
+        this.tween.restart()
     }
 
     // callback to generate and show a random result after spinning the slot
@@ -67,6 +72,12 @@ export default class slot {
             var y = INITIAL_Y + (2+i) * (ITEM_LENGTH + 9)
             scene.add.tween({targets: random_items[i], y: y, duration: 450, }) 
         }
+
+        if(scene.in_game == true){
+            scene.button.setFrame(0)
+            scene.in_game = false
+        }
+        
     }
 
 
