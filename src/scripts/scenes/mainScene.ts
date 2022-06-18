@@ -1,3 +1,4 @@
+import Score from '../objects/score'
 import slot, { INITIAL_Y } from '../objects/slot'
 
 export const ITEM_LENGTH = 82
@@ -6,10 +7,12 @@ const GAP = 58
 
 export const NUM_SLOTS = 3
 
+const GAME_COST = 100
+
 export default class MainScene extends Phaser.Scene {
     items : Phaser.GameObjects.Image[][]
     in_game : boolean
-    score : Phaser.GameObjects.Text
+    score : Score
     button : Phaser.GameObjects.Sprite
     num_slots : number
     slots : slot[]
@@ -39,7 +42,7 @@ export default class MainScene extends Phaser.Scene {
 
         //score text
         this.add.image(960, 640, 'scoreFrame')
-        this.score = this.add.text(830, 605, '100000', {fontFamily : 'neon'}).setFontSize(64).setWordWrapWidth(400)
+        this.score = new Score(this, 830, 605)
 
         // Create timeline to store tweens
         this.timeline = this.tweens.createTimeline({loop:-1, onLoop: this.end_turn, onLoopScope: this})
@@ -61,6 +64,7 @@ export default class MainScene extends Phaser.Scene {
             if(scene.in_game == true) return
             scene.in_game = true
 
+            if(scene.score.substract(GAME_COST))
             // Key will be set backed to frame 0 when the slots are done
             scene.button.setFrame(1)
 
