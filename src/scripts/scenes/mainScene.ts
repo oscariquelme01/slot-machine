@@ -8,6 +8,7 @@ const GAP = 58
 export const NUM_SLOTS = 3
 
 const GAME_COST = 100
+const LINE_PRICE = 1000
 
 export default class MainScene extends Phaser.Scene {
     items : Phaser.GameObjects.Image[][]
@@ -65,6 +66,7 @@ export default class MainScene extends Phaser.Scene {
             scene.in_game = true
 
             if(scene.score.substract(GAME_COST))
+
             // Key will be set backed to frame 0 when the slots are done
             scene.button.setFrame(1)
 
@@ -76,21 +78,7 @@ export default class MainScene extends Phaser.Scene {
                 scene.timeline.resume()
             }
 
-            // check results line by line
-            // for(let i = 0; i < 3; i++){
-            //     console.log(scene.slots[0].results)
-
-            //     var slot_0_result = scene.items[0][scene.slots[0].results[i]].name
-            //     var slot_1_result = scene.items[1][scene.slots[1].results[i]].name
-            //     var slot_2_result = scene.items[2][scene.slots[2].results[i]].name
-
-            //     if(slot_0_result == slot_1_result && slot_1_result == slot_2_result){
-            //         console.log('SACADAAA')
-            //     }
-            // }
-
         }, this)
-
         
     }
 
@@ -98,7 +86,21 @@ export default class MainScene extends Phaser.Scene {
     end_turn(){
         this.timeline.pause()
 
-        // This should always evaluate to true
+        // check results line by line
+        let price = 0
+        for(let i = 0; i < 3; i++){
+
+            var slot_0_result = this.items[0][this.slots[0].results[i]].name
+            var slot_1_result = this.items[1][this.slots[1].results[i]].name
+            var slot_2_result = this.items[2][this.slots[2].results[i]].name
+    
+            if(slot_0_result == slot_1_result && slot_1_result == slot_2_result){
+                price += LINE_PRICE
+            }
+        }
+
+        if(price != 0) this.score.add(price)
+
         if(this.in_game == true){
             this.button.setFrame(0)
             this.in_game = false
