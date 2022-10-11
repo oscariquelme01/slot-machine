@@ -9,6 +9,7 @@ export const NUM_SLOTS = 3
 
 const GAME_COST = 100
 const LINE_PRICE = 1000
+const BACKEND_MIN_WAIT = 3
 
 export default class MainScene extends Phaser.Scene {
     items : Phaser.GameObjects.Image[][]
@@ -60,15 +61,33 @@ export default class MainScene extends Phaser.Scene {
         }
 
         //listen to click on button
-        this.button.on('pointerdown', function(){
+        this.button.on('pointerdown', async function(){
+
 
             if(scene.in_game == true) return
             scene.in_game = true
 
-            if(scene.score.substract(GAME_COST))
+            scene.score.substract(GAME_COST)
 
-            // Key will be set backed to frame 0 when the slots are done
+            // Key will be set back to frame 0 when the slots are done
             scene.button.setFrame(1)
+
+            // Random backend time simulation. The slot will spin for as much as needed in a real case.
+            // Generate a random between random_min and random_max
+            const random_max = 6
+            const random_min = 1
+            const random_range = random_max - random_min
+            let random_backend_time = Math.floor(Math.random() * random_range) + random_min  
+
+            // is the random generated backend time less than the minimum time to wait?
+            random_backend_time < BACKEND_MIN_WAIT ? random_backend_time = BACKEND_MIN_WAIT : 
+
+                // simulate waiting for the backend
+                setTimeout(() => {
+                    // flag the spinning tweens as done
+
+
+                }, random_backend_time * 1000) // ms
 
             if(scene.first_time == true){
                 scene.timeline.play()

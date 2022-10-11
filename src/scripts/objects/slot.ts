@@ -4,14 +4,13 @@ import MainScene, { ITEM_LENGTH, NUMBER_ITEMS, NUM_SLOTS} from "../scenes/mainSc
 const ROUND_DURATION = 300
 export const INITIAL_Y = 100
 const END_Y = 600
-const NUM_ROUNDS = 3
 
 export default class slot {
     scene: MainScene
     pos_slot: number
     x: number
-    tween: Phaser.Tweens.Tween
     results: number[]
+    spinning_tween: Phaser.Tweens.Tween
 
     // x & y will determine the starting point of the slot 
     constructor(scene: MainScene, x: number, pos_slot: number){
@@ -38,10 +37,18 @@ export default class slot {
         var velocity = (END_Y - INITIAL_Y) / ROUND_DURATION //px/s
         var delay = ITEM_LENGTH / velocity
 
-        this.scene.timeline.add({targets: this.scene.items[this.pos_slot], y: {from: INITIAL_Y, to: END_Y}, 
-            duration: ROUND_DURATION, delay: this.scene.tweens.stagger(delay, {}), repeat: NUM_ROUNDS, repeatDelay: delay, 
+        // this.scene.timeline.add({targets: this.scene.items[this.pos_slot], y: {from: INITIAL_Y, to: END_Y}, 
+        //     duration: ROUND_DURATION, delay: this.scene.tweens.stagger(delay, {}), repeat: NUM_ROUNDS, repeatDelay: delay, 
+        //     onComplete: this.show_result, onCompleteParams: [this.scene, this.pos_slot], onCompleteScope: this, 
+        //     offset: 0, paused: true})
+
+        var spinning_tween_config = {y: {from: INITIAL_Y, to: END_Y}, 
+            duration: ROUND_DURATION, delay: this.scene.tweens.stagger(delay, {}), repeat: -1, 
             onComplete: this.show_result, onCompleteParams: [this.scene, this.pos_slot], onCompleteScope: this, 
-            offset: 0, paused: true})
+            offset: 0, paused: true}
+
+        this.spinning_tween = new Phaser.Tweens.Tween(this.scene.timeline, spinning_tween_config, this.scene.items[this.pos_slot])
+
     }
     
     // callback to generate and show a random result after spinning the slot
