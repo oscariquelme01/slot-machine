@@ -42,13 +42,23 @@ export default class slot {
         //     onComplete: this.show_result, onCompleteParams: [this.scene, this.pos_slot], onCompleteScope: this, 
         //     offset: 0, paused: true})
 
-        var spinning_tween_config = {y: {from: INITIAL_Y, to: END_Y}, 
-            duration: ROUND_DURATION, delay: this.scene.tweens.stagger(delay, {}), repeat: -1, 
-            onComplete: this.show_result, onCompleteParams: [this.scene, this.pos_slot], onCompleteScope: this, 
-            offset: 0, paused: true}
+        this.spinning_tween = this.scene.tweens.add({
+            targets: this.scene.items[this.pos_slot],
+            y: {from: INITIAL_Y, to: END_Y}, 
+            duration: ROUND_DURATION, 
+            delay: this.scene.tweens.stagger(delay, {}), 
+            loop: -1, 
+            // repeat: -1,
+            onComplete: this.show_result,
+            onCompleteParams: [this.scene, this.pos_slot],
+            onCompleteScope: this, 
+            offset: 0,
+            paused: true})
 
-        this.spinning_tween = new Phaser.Tweens.Tween(this.scene.timeline, spinning_tween_config, this.scene.items[this.pos_slot])
-
+        this.spinning_tween.addListener('stop', () => {
+            // Time left for the round to end
+            this.spinning_tween.loop = 1
+        })
     }
     
     // callback to generate and show a random result after spinning the slot
@@ -77,6 +87,7 @@ export default class slot {
         }
 
         // i = 2 because there are 3 lines, 2+i and ITEM_LENGTH + 9 act as margin to get the right values
+        // TODO: this is horrible
         for(let i = 2; i >= 0; i--){
             var y = INITIAL_Y + (2+i) * (ITEM_LENGTH + 9)
             this.scene.add.tween({targets: random_items[i], y: y, duration: 450}) 

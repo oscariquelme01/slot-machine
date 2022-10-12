@@ -12,14 +12,13 @@ const LINE_PRICE = 1000
 const BACKEND_MIN_WAIT = 3
 
 export default class MainScene extends Phaser.Scene {
-    items : Phaser.GameObjects.Image[][]
-    in_game : boolean
-    score : Score
-    button : Phaser.GameObjects.Sprite
-    num_slots : number
-    slots : slot[]
-    timeline : Phaser.Tweens.Timeline
-    first_time : Boolean
+    items: Phaser.GameObjects.Image[][]
+    in_game: boolean
+    score: Score
+    button: Phaser.GameObjects.Sprite
+    num_slots: number
+    slots: slot[]
+    first_time: Boolean
 
     constructor() {
         super({ key: 'MainScene' })
@@ -28,9 +27,9 @@ export default class MainScene extends Phaser.Scene {
         this.first_time = true
     }
 
-    preload(){
-        this.load.spritesheet('slotItems', 'assets/sprites/spritesheet.png', {frameWidth: ITEM_LENGTH, frameHeight: ITEM_LENGTH, spacing: GAP, margin: 56})
-        this.load.spritesheet('button', 'assets/sprites/button.png', {frameWidth: 288, frameHeight: 195})
+    preload() {
+        this.load.spritesheet('slotItems', 'assets/sprites/spritesheet.png', { frameWidth: ITEM_LENGTH, frameHeight: ITEM_LENGTH, spacing: GAP, margin: 56 })
+        this.load.spritesheet('button', 'assets/sprites/button.png', { frameWidth: 288, frameHeight: 195 })
         this.load.image('background', 'assets/img/bg.png')
         this.load.image('scoreFrame', 'assets/img/score-frame.png')
     }
@@ -47,24 +46,24 @@ export default class MainScene extends Phaser.Scene {
         this.score = new Score(this, 830, 605)
 
         // Create timeline to store tweens
-        this.timeline = this.tweens.createTimeline({loop:-1, onLoop: this.end_turn, onLoopScope: this})
-        this.timeline.on('resume', this.reset_items, this)
-        
+        // onLoop: this.end_turn, onLoopScope: this})
+        // 'resume', this.reset_items, this)
+
         // Create all the slots
         this.items = []
         var x_positions = [780, 960, 1140]
         this.slots = []
 
-        for(let i = 0; i < NUM_SLOTS; i++){
+        for (let i = 0; i < NUM_SLOTS; i++) {
             this.slots[i] = new slot(this, x_positions[i], this.num_slots)
             this.num_slots++;
         }
 
         //listen to click on button
-        this.button.on('pointerdown', async function(){
+        this.button.on('pointerdown', async function() {
 
 
-            if(scene.in_game == true) return
+            if (scene.in_game == true) return
             scene.in_game = true
 
             scene.score.substract(GAME_COST)
@@ -77,50 +76,57 @@ export default class MainScene extends Phaser.Scene {
             const random_max = 6
             const random_min = 1
             const random_range = random_max - random_min
-            let random_backend_time = Math.floor(Math.random() * random_range) + random_min  
+            let random_backend_time = Math.floor(Math.random() * random_range) + random_min
 
             // is the random generated backend time less than the minimum time to wait?
-            random_backend_time < BACKEND_MIN_WAIT ? random_backend_time = BACKEND_MIN_WAIT : 
+            if (random_backend_time < BACKEND_MIN_WAIT) { random_backend_time = BACKEND_MIN_WAIT }
 
-                // simulate waiting for the backend
-                setTimeout(() => {
-                    // flag the spinning tweens as done
+            console.log(`random time: ${random_backend_time}`)
 
+            // simulate waiting for the backend
+            setTimeout(() => {
+                // flag the spinning tweens as complete so that the complete callbacks execute
+                for(let i = 0; i < NUM_SLOTS; i++){
+                    scene.slots[i].spinning_tween.emit('stop')
+                }
 
-                }, random_backend_time * 1000) // ms
+                
+            }, random_backend_time * 1000) // ms
 
-            if(scene.first_time == true){
-                scene.timeline.play()
-                scene.first_time = false
+            for(let i = 0; i < NUM_SLOTS; i++){
+                if (scene.first_time == true) {
+                    scene.slots[i].spinning_tween.resume()
+                }
+                else {
+                    scene.slots[i].spinning_tween.restart()
+                }
             }
-            else{
-                scene.timeline.resume()
-            }
 
+            if (scene.first_time == true) scene.first_time = false
         }, this)
-        
+
     }
 
     // callback on loop for the main timeline 
-    end_turn(){
-        this.timeline.pause()
+    end_turn() {
+        // this.timeline.pause()
 
         // check results line by line
         let price = 0
-        for(let i = 0; i < 3; i++){
+        for (let i = 0; i < 3; i++) {
 
             var slot_0_result = this.items[0][this.slots[0].results[i]].name
             var slot_1_result = this.items[1][this.slots[1].results[i]].name
             var slot_2_result = this.items[2][this.slots[2].results[i]].name
-    
-            if(slot_0_result == slot_1_result && slot_1_result == slot_2_result){
+
+            if (slot_0_result == slot_1_result && slot_1_result == slot_2_result) {
                 price += LINE_PRICE
             }
         }
 
-        if(price != 0) this.score.add(price)
+        if (price != 0) this.score.add(price)
 
-        if(this.in_game == true){
+        if (this.in_game == true) {
             this.button.setFrame(0)
             this.in_game = false
         }
@@ -128,10 +134,10 @@ export default class MainScene extends Phaser.Scene {
 
     // callback on resume for the main timeline. Resets back all items for the next round. 
     // This is needed because the slot changes the y coordinate of the randomly picked items 
-    reset_items(){
-        
-        for(let j = 0; j < NUM_SLOTS; j++){
-            for(let i = 0; i < NUMBER_ITEMS; i++){
+    reset_items() {
+
+        for (let j = 0; j < NUM_SLOTS; j++) {
+            for (let i = 0; i < NUMBER_ITEMS; i++) {
                 this.items[j][i].setY(INITIAL_Y)
             }
         }
