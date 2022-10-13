@@ -45,10 +45,6 @@ export default class MainScene extends Phaser.Scene {
         this.add.image(960, 640, 'scoreFrame')
         this.score = new Score(this, 830, 605)
 
-        // Create timeline to store tweens
-        // onLoop: this.end_turn, onLoopScope: this})
-        // 'resume', this.reset_items, this)
-
         // Create all the slots
         this.items = []
         var x_positions = [780, 960, 1140]
@@ -60,8 +56,7 @@ export default class MainScene extends Phaser.Scene {
         }
 
         //listen to click on button
-        this.button.on('pointerdown', async function() {
-
+        this.button.on('pointerdown', function() {
 
             if (scene.in_game == true) return
             scene.in_game = true
@@ -71,45 +66,15 @@ export default class MainScene extends Phaser.Scene {
             // Key will be set back to frame 0 when the slots are done
             scene.button.setFrame(1)
 
-            // Random backend time simulation. The slot will spin for as much as needed in a real case.
-            // Generate a random between random_min and random_max
-            const random_max = 6
-            const random_min = 1
-            const random_range = random_max - random_min
-            let random_backend_time = Math.floor(Math.random() * random_range) + random_min
-
-            // is the random generated backend time less than the minimum time to wait?
-            if (random_backend_time < BACKEND_MIN_WAIT) { random_backend_time = BACKEND_MIN_WAIT }
-
-            console.log(`random time: ${random_backend_time}`)
-
-            // simulate waiting for the backend
-            setTimeout(() => {
-                // flag the spinning tweens as complete so that the complete callbacks execute
-                for(let i = 0; i < NUM_SLOTS; i++){
-                    scene.slots[i].spinning_tween.emit('stop')
-                }
-
-                
-            }, random_backend_time * 1000) // ms
-
-            for(let i = 0; i < NUM_SLOTS; i++){
-                if (scene.first_time == true) {
-                    scene.slots[i].spinning_tween.resume()
-                }
-                else {
-                    scene.slots[i].spinning_tween.restart()
-                }
-            }
-
-            if (scene.first_time == true) scene.first_time = false
+            // Launch the slots with a simulated backend time
+            scene.launch_slots()
         }, this)
 
     }
 
     // callback on loop for the main timeline 
     end_turn() {
-        // this.timeline.pause()
+        console.log('end turn')
 
         // check results line by line
         let price = 0
@@ -132,19 +97,63 @@ export default class MainScene extends Phaser.Scene {
         }
     }
 
-    // callback on resume for the main timeline. Resets back all items for the next round. 
-    // This is needed because the slot changes the y coordinate of the randomly picked items 
-    reset_items() {
+    update() {
+        if(this.in_game == true){
+            let counter = 0
+            for(let i = 0; i < NUM_SLOTS; i++){
+                if (this.slots[i].results_ready == true){
+                    counter++
+                }
+            }
 
-        for (let j = 0; j < NUM_SLOTS; j++) {
-            for (let i = 0; i < NUMBER_ITEMS; i++) {
-                this.items[j][i].setY(INITIAL_Y)
+            if (counter == NUM_SLOTS){
+                for(let i = 0; i < NUM_SLOTS; i++){
+                    this.slots[i].results_ready = false
+                }
+                
+                // set results back to false
+                this.end_turn()
             }
         }
     }
 
-    update() {
+    backend_sim() {
+        // Generate a random between random_min and random_max
+        const random_max = 6
+        const random_min = 1
+        const random_range = random_max - random_min
+        let random_backend_time = Math.floor(Math.random() * random_range) + random_min
 
+        // is the random generated backend time less than the minimum time to wait?
+        if (random_backend_time < BACKEND_MIN_WAIT) { random_backend_time = BACKEND_MIN_WAIT }
+
+        return random_backend_time
     }
 
+    launch_slots() {
+        // Random backend time simulation. The slot will spin for as much as needed in a real case.
+        let random_backend_time = this.backend_sim()
+
+        // simulate waiting for the backend
+        setTimeout(() => {
+            // flag the spinning tweens as complete so that the complete callbacks execute
+            for (let i = 0; i < NUM_SLOTS; i++) {
+                this.slots[i].spinning_tween.emit('stop')
+            }
+
+        }, random_backend_time * 1000) // ms
+
+        // launch the slots
+        for (let i = 0; i < NUM_SLOTS; i++) {
+            if (this.first_time == true) {
+                this.slots[i].spinning_tween.resume()
+            }
+            else {
+                this.slots[i].spinning_tween.restart()
+                this.slots[i].spinning_tween.resume()
+            }
+        }
+
+        if (this.first_time == true) this.first_time = false
+    }
 }
