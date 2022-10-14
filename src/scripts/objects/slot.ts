@@ -64,37 +64,25 @@ export default class slot {
     }
 
     // callback to generate and show a random result after spinning the slot
-    show_result(_: Phaser.Tweens.Tween, items: Phaser.GameObjects.Image[]) {
+    show_result() {
+        let items = this.scene.items[this.pos_slot]
 
+        // Randomize the results
+        this.shuffleArray(items)
         this.results = []
+
         var random_items: Phaser.GameObjects.Image[] = []
 
-        // get random items
-        for (let i = 0; i < 3; i++) {
-            var num_in_array = false
-
-            // make sure the number is not repeated
-            while (!num_in_array) {
-                let random_num = Math.floor(Math.random() * NUMBER_ITEMS)
-
-                if (!this.results.includes(random_num)) {
-                    this.results[i] = random_num
-                    num_in_array = true
-                }
-            }
-            // ger random image 
-            random_items[i] = items[this.results[i]]
-            random_items[i].setY(INITIAL_Y)
-        }
-
-        // i = 2 because there are 3 lines, 2+i and ITEM_LENGTH + 9 act as margin to get the right values
-        // TODO: this is horrible
-        for (let i = 2; i >= 0; i--) {
+        for(let i = 0; i < 3; i++){
+            this.results[i] = Number(items[i].name)
             var y = INITIAL_Y + (2 + i) * (ITEM_LENGTH + 9)
             let duration = i == 0 ?  ROUND_DURATION * 1.5 :  ROUND_DURATION / i
+            random_items[i] = items[i]
+            random_items[i].setY(INITIAL_Y)
             this.scene.add.tween({ targets: random_items[i], y: y, duration: duration})
-        this.results_ready = true 
         }
+
+        this.results_ready = true 
     }
 
     // Durstenfeld shuffle array algorithm 

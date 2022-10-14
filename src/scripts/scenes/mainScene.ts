@@ -74,15 +74,14 @@ export default class MainScene extends Phaser.Scene {
 
     // callback on loop for the main timeline 
     end_turn() {
-        console.log('end turn')
 
         // check results line by line
         let price = 0
         for (let i = 0; i < 3; i++) {
 
-            var slot_0_result = this.items[0][this.slots[0].results[i]].name
-            var slot_1_result = this.items[1][this.slots[1].results[i]].name
-            var slot_2_result = this.items[2][this.slots[2].results[i]].name
+            var slot_0_result = this.slots[0].results[i]
+            var slot_1_result = this.slots[1].results[i]
+            var slot_2_result = this.slots[2].results[i]
 
             if (slot_0_result == slot_1_result && slot_1_result == slot_2_result) {
                 price += LINE_PRICE
