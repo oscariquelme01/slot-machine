@@ -46,6 +46,8 @@ export default class slot {
             delay: this.scene.tweens.stagger(delay, {}),
             // loop: -1, 
             repeat: -1,
+            onRepeat: this.shuffleArray,
+            onRepeatParams: this.scene.items[this.pos_slot],
             paused: true
         })
 
@@ -81,6 +83,8 @@ export default class slot {
             random_items[i].setY(INITIAL_Y)
             this.scene.add.tween({ targets: random_items[i], y: y, duration: duration})
         }
+
+        // TODO: Llamar shuffle array
 
         this.results_ready = true 
     }

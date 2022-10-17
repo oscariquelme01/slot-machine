@@ -139,7 +139,6 @@ export default class MainScene extends Phaser.Scene {
             for (let i = 0; i < NUM_SLOTS; i++) {
                 this.slots[i].spinning_tween.emit('stop')
             }
-
         }, random_backend_time * 1000) // ms
 
         // launch the slots
