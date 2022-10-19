@@ -1,8 +1,8 @@
 import Score from '../objects/score'
-import slot, { INITIAL_Y } from '../objects/slot'
+import slot from '../objects/slot'
 
 export const ITEM_LENGTH = 82
-export const NUMBER_ITEMS = 7
+export const NUMBER_ITEMS = 6
 const GAP = 58
 
 export const NUM_SLOTS = 3
