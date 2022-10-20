@@ -1,7 +1,7 @@
 import MainScene, { ITEM_LENGTH, NUMBER_ITEMS, NUM_SLOTS } from "../scenes/mainScene"
 
 // each item will go from INITIAL_Y to END_Y in ROUND_DURATION ms for NUM_ROUNDS rounds
-const ROUND_DURATION = 150
+const ROUND_DURATION = 200
 export const INITIAL_Y = -90
 const END_Y = 200
 
@@ -11,6 +11,7 @@ export default class slot {
     x: number
     results: number[]
     spinning_tween: Phaser.Tweens.Tween
+    images_name: Array<number>
     results_ready: boolean
     container: Phaser.GameObjects.Container
     y_positions: {[y: number]: number}
@@ -26,6 +27,7 @@ export default class slot {
         this.y_positions = {}
 
         this.scene.items[this.pos_slot] = []
+        this.images_name = []
         this.container = this.scene.add.container(x, INITIAL_Y)
         this.container.setDepth(-1)
 
@@ -33,6 +35,7 @@ export default class slot {
         for (let i = 0; i < NUMBER_ITEMS; i++) {
             var y = INITIAL_Y + (2 + i) * (ITEM_LENGTH + 7)
             this.y_positions[y] = i
+            this.images_name[i] = i 
 
             var image = this.scene.add.image(0, y, 'slotItems', i)
             this.container.add(image)
@@ -76,19 +79,25 @@ export default class slot {
 
     rearrange_items() {
 
+
         let keys = Object.keys(this.y_positions)
         let top_keys = keys.slice(0, 3)
+        let bot_keys = keys.slice(3, 6)
 
-        // Randomize the 3 top items for the next round and reposition the 3 top items from the previous round to be the 3 bottom items
+        
+        console.log(this.y_positions)
+
+        // Reposition the 3 top items from the previous round to be the 3 bottom items
         for(let i = 0; i < top_keys.length; i++){
             let top_image = this.container.list[this.y_positions[top_keys[i]]] as Phaser.GameObjects.Image
+            let bot_image = this.container.list[this.y_positions[bot_keys[i]]] as Phaser.GameObjects.Image
 
-            let rand = Math.floor(Math.random() * NUMBER_ITEMS)
-            let random_image = this.container.list[rand] as Phaser.GameObjects.Image
-            
             // swap the images
-            this.swap_images(top_image, random_image, top_keys[i], keys[rand])
+            this.swap_images(top_image, bot_image, top_keys[i], bot_keys[i])
         }
+
+        // randomize the 3 top items for the next round
+        this.randomize_next_round()
 
     }
 
@@ -102,6 +111,49 @@ export default class slot {
         this.y_positions[key_2] = aux
     }
 
+    randomize_next_round(){
+        let keys = Object.keys(this.y_positions)
+        // let not_available_keys = keys.slice(3, 6) // AKA bot keys
+        // let top_keys = keys.slice(0,3)
+        // let not_available_list: number[] = []
+
+
+
+        for(let i = 0; i < NUMBER_ITEMS/2; i++){
+            let image = this.container.list[i] as Phaser.GameObjects.Image
+
+            let rand = Phaser.Utils.Array.GetRandom(this.images_name)
+            image.setFrame(rand)
+            
+            this.y_positions[keys[i]] = rand
+        }
+
+        // for(let i = 0; i < NUMBER_ITEMS/2; i++){
+        //     let rand: number
+
+        //     do {
+        //         rand = Math.floor(Math.random() * NUMBER_ITEMS)
+        //     } while (not_available_list.includes(rand));
+
+        //     not_available_list.push(rand)
+
+        //     let random_image = this.container.list[rand] as Phaser.GameObjects.Image
+        //     let top_image = this.container.list[this.y_positions[top_keys[i]]] as Phaser.GameObjects.Image
+
+        //     this.swap_images(top_image, random_image, top_keys[i], keys[rand])
+        //     console.log(random_image.name)
+        //     console.log(top_image.name)
+        //     // console.log(i)
+        //     // console.log(rand)
+        //     console.log('===========')
+            
+        // }
+
+        // console.log(this.y_positions)
+        // console.log('DONEEEEEE')
+
+    }
+
     // callback to generate and show a random result after spinning the slot
     show_result() {
         let items = this.scene.items[this.pos_slot]
@@ -110,18 +162,14 @@ export default class slot {
         this.shuffleArray(items)
         this.results = []
 
-        var random_items: Phaser.GameObjects.Image[] = []
+        let result_keys = Object.keys(this.y_positions).slice(0, 3)
 
         for(let i = 0; i < 3; i++){
-            this.results[i] = Number(items[i].name)
-            // var y = INITIAL_Y + (2 + i) * (ITEM_LENGTH + 9)
-            // this.y_positions[i] = y
-            // let duration = i == 0 ?  ROUND_DURATION * 1.5 :  ROUND_DURATION / i
-            // random_items[i] = items[i]
-            // random_items[i].setY(INITIAL_Y)
-            // this.scene.add.tween({ targets: random_items[i], y: y, duration: duration})
+            this.results[i] = Number(this.container.list[this.y_positions[result_keys[i]]].name)
+            // console.log(`${ this.pos_slot } : ${ this.results[i] }`)
         }
 
+        // console.log(this.y_positions)
 
         this.results_ready = true 
     }
