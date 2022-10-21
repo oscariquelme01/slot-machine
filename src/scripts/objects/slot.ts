@@ -119,9 +119,6 @@ export default class slot {
 
         for(let i = 0; i < NUMBER_ITEMS/2; i++){
             this.results[i] = Number(this.y_positions[result_keys[i]])
-            console.log(`${ this.pos_slot } : ${ this.results[i] }`)
-            // const img = this.container.list[this.results[i]] as Phaser.GameObjects.Image
-            // img.setFrame(this.results[i])
         }
 
         this.results_ready = true 
