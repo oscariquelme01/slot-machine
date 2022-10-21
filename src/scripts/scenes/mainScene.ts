@@ -46,7 +46,6 @@ export default class MainScene extends Phaser.Scene {
         this.score = new Score(this, 830, 605)
 
         // Create all the slots
-        this.items = []
         var x_positions = [780, 960, 1140]
         this.slots = []
 
