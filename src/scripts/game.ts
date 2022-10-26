@@ -1,4 +1,5 @@
 import 'phaser'
+import BonusScene from './scenes/bonus'
 import MainScene from './scenes/mainScene'
 import PreloadScene from './scenes/preloadScene'
 
@@ -15,7 +16,7 @@ const config = {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT
   },
-  scene: [PreloadScene, MainScene],
+  scene: [PreloadScene, MainScene, BonusScene],
   physics: {
     default: 'arcade',
     arcade: {
