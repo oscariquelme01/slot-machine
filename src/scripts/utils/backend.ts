@@ -16,11 +16,12 @@ export default class Backend {
     }
 
     sim_bonus_result() {
-        // Generate a random between bonus_min and bonux_max
-        const bonus_min = 200
-        const bonus_max = 50
-        const random_range = bonus_min - bonus_max
-        let bonus = Math.floor(Math.random() * random_range) + bonus_min
+        // Generate a random between 0 and 200 
+        const bonus_max = 200
+        let bonus = Math.floor(Math.random() * bonus_max)
+
+        // Make it a multiple of 10
+        bonus -= bonus % 10
 
         return bonus
     }

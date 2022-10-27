@@ -41,7 +41,7 @@ export default class MainScene extends Phaser.Scene {
         this.load.image('scoreFrame', 'assets/img/score-frame.png')
     }
 
-    create() {
+    create(data) {
         var scene = this
 
         // add images
@@ -50,7 +50,8 @@ export default class MainScene extends Phaser.Scene {
 
         // score text
         this.add.image(960, 640, 'scoreFrame')
-        this.score = new Score(this, 830, 605, INITIAL_BALANCE)
+        let balance = data['balance'] == undefined ? INITIAL_BALANCE : data['balance']
+        this.score = new Score(this, 830, 605, balance)
 
         // backend
         this.backend = new Backend()
@@ -107,12 +108,12 @@ export default class MainScene extends Phaser.Scene {
             // check for the bonus symbol frequency
             for (const r of slot_results) {
                 bonus_count += Number(r == BONUS_SYMBOL)
-
             }
         }
 
         if (price != 0) this.score.add(price)
 
+        bonus_count = MIN_BONUS_FREQUENCY
         // check for bonus
         if (bonus_count >= MIN_BONUS_FREQUENCY) {
             // generate bonus random result
